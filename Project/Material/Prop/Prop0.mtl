@@ -1,0 +1,13 @@
+{
+    "Images": {
+        "Albedo": {
+            "Path": "Prop0.tex"
+        },
+        "Normal": {
+            "Path": "Prop0_n.tex"
+        },
+        "Relief": {
+            "Path": "Prop0_h.tex"
+        }
+    }
+}

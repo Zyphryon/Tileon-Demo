@@ -1,0 +1,16 @@
+{
+  "Images": {
+    "Albedo": {
+      "Path": "Blendset.tex"
+    },
+    "Normal": {
+      "Path": "Blendset_n.tex"
+    }
+  },
+  "Parameters": {
+    "Height": {
+      "Type": "Bool",
+      "Value": true
+    }
+  }
+}

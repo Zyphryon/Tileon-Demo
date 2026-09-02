@@ -1,0 +1,47 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "One",
+      "DstColor": "One",
+      "EquationColor": "Min",
+      "SrcAlpha": "One",
+      "DstAlpha": "One",
+      "EquationAlpha": "Min",
+      "Channel": "R"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "Float32x4", 0,  0, 1],
+        [1, "Float32x4", 0, 16, 1],
+        [2, "Float32x4", 0, 32, 1],
+        [3, "Float32x3", 0, 48, 1],
+        [4, "UInt32x1",  0, 60, 1]
+      ],
+      "Primitive": "TriangleStrip"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Pass", "Name": "Caster", "Type": "Float4", "Count": 32 }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Shadow_Volume.glsl", "Stage": "Vertex" },
+        { "Path": "Shadow_Volume.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Shadow_Volume.hlsl", "Stage": "Vertex" },
+        { "Path": "Shadow_Volume.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

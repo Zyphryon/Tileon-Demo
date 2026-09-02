@@ -1,0 +1,53 @@
+{
+    "Properties": {
+        "Blend": {
+            "SrcColor": "One",
+            "DstColor": "OneMinusSrcAlpha",
+            "SrcAlpha": "One",
+            "DstAlpha": "OneMinusSrcAlpha"
+        },
+        "Depth": {
+            "Mask": false,
+            "Condition": "LessEqual"
+        },
+        "Rasterizer": {
+            "Cull": "None"
+        },
+        "Layout": {
+            "Attributes": [
+                [0, "UIntNorm16x4", 0,  0, 1],
+                [1, "SInt16x2",     0,  8, 1],
+                [2, "UInt16x2",     0, 12, 1],
+                [3, "UInt32x1",     0, 16, 1],
+                [4, "UIntNorm8x4",  0, 20, 1]
+            ],
+            "Primitive": "TriangleStrip"
+        }
+    },
+    "Signature": {
+        "Textures": [
+            { "Name": "Albedo" }
+        ],
+        "Samplers": [
+            { "Name": "Albedo", "Filter": "Linear" }
+        ],
+        "Uniforms":
+        [
+            { "Frequency": "Frame",    "Name": "Camera", "Type": "Float4", "Count": 4 },
+            { "Frequency": "Material", "Name": "Range",  "Type": "Float2" }
+        ]
+    },
+    "Program": {
+        "Defines": ["GLYPH_SUBPIXEL=0.001953125"],
+        "Shaders": {
+            "HLSL": [
+                { "Path": "Text.hlsl", "Stage": "Vertex"   },
+                { "Path": "Text.hlsl", "Stage": "Fragment" }
+            ],
+            "GLSL": [
+                { "Path": "Text.glsl", "Stage": "Vertex"   },
+                { "Path": "Text.glsl", "Stage": "Fragment" }
+            ]
+        }
+    }
+}

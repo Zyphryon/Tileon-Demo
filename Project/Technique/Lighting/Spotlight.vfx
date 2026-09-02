@@ -1,0 +1,61 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "One",
+      "DstColor": "One",
+      "SrcAlpha": "Zero",
+      "DstAlpha": "One"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "Float32x4", 0,  0, 1],
+        [1, "Float32x4", 0, 16, 1],
+        [2, "Float32x4", 0, 32, 1],
+        [3, "Float32x1", 0, 48, 1],
+        [4, "Float32x1", 0, 52, 1]
+      ],
+      "Primitive": "TriangleStrip"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame",    "Name": "Camera",        "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame",    "Name": "CameraInverse", "Type": "Float4", "Count": 4 },
+      { "Frequency": "Instance", "Name": "Light",         "Type": "Float4", "Count": 4 }
+    ],
+    "Textures": [
+      { "Name": "Normal", "Frequency": "Pass" },
+      { "Name": "Depth",  "Frequency": "Pass" },
+      { "Name": "Albedo", "Frequency": "Pass" },
+      { "Name": "Shadow", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Normal", "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Depth",  "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Albedo", "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Shadow", "Frequency": "Pass", "Filter": "Point", "AddressModeU": "Repeat" }
+    ]
+  },
+  "Program": {
+    "Defines": [
+      "LIGHT_SPOT"
+    ],
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Light.glsl", "Stage": "Vertex" },
+        { "Path": "Light.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Light.hlsl", "Stage": "Vertex" },
+        { "Path": "Light.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

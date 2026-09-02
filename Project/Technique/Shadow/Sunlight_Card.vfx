@@ -1,0 +1,51 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "One",
+      "DstColor": "One",
+      "EquationColor": "Min",
+      "SrcAlpha": "One",
+      "DstAlpha": "One",
+      "EquationAlpha": "Min"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "Float32x4", 0,  0, 1],
+        [1, "Float32x4", 0, 16, 1],
+        [2, "Float32x4", 0, 32, 1]
+      ],
+      "Primitive": "TriangleStrip"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Pass", "Name": "Sunlight", "Type": "Float4", "Count": 4 },
+      { "Frequency": "Pass", "Name": "Toward",   "Type": "Float4" }
+    ],
+    "Textures": [
+      { "Name": "Albedo" }
+    ],
+    "Samplers": [
+      { "Name": "Albedo", "Filter": "Linear" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Sunlight_Card.glsl", "Stage": "Vertex" },
+        { "Path": "Sunlight_Card.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Sunlight_Card.hlsl", "Stage": "Vertex" },
+        { "Path": "Sunlight_Card.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "Properties": {
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [],
+      "Primitive": "TriangleList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera",        "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "CameraInverse", "Type": "Float4", "Count": 4 }
+    ],
+    "Textures": [
+      { "Name": "Source", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Source", "Frequency": "Pass", "Filter": "Point" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "HLSL": [
+        { "Path": "Preview.hlsl", "Stage": "Vertex"   },
+        { "Path": "Preview.hlsl", "Stage": "Fragment" }
+      ],
+      "GLSL": [
+        { "Path": "Preview.glsl", "Stage": "Vertex"   },
+        { "Path": "Preview.glsl", "Stage": "Fragment" }
+      ]
+    }
+  },
+  "Features": [
+    {
+      "Name": "Normal",
+      "Program": {
+        "Defines": ["PREVIEW_NORMAL"]
+      }
+    },
+    {
+      "Name": "Depth",
+      "Program": {
+        "Defines": ["PREVIEW_DEPTH", "ELEVATION_SCALE=8.0"]
+      }
+    },
+    {
+      "Name": "Gamma",
+      "Program": {
+        "Defines": ["PREVIEW_GAMMA"]
+      }
+    }
+  ],
+  "Preload": [
+    ["Normal"], ["Depth"], ["Gamma"]
+  ]
+}

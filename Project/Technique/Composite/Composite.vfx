@@ -1,0 +1,54 @@
+{
+  "Properties": {
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [],
+      "Primitive": "TriangleList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Pass", "Name": "Grading", "Type": "Float4" },
+      { "Frequency": "Pass", "Name": "Lift",    "Type": "Float4" },
+      { "Frequency": "Pass", "Name": "Gamma",   "Type": "Float4" },
+      { "Frequency": "Pass", "Name": "Gain",    "Type": "Float4" }
+    ],
+    "Textures": [
+      { "Name": "Scene", "Frequency": "Pass" },
+      { "Name": "Bloom", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Scene", "Frequency": "Pass", "Filter": "LinearMipLinear" },
+      { "Name": "Bloom", "Frequency": "Pass", "Filter": "Linear"          }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "HLSL": [
+        { "Path": "Composite.hlsl", "Stage": "Vertex"   },
+        { "Path": "Composite.hlsl", "Stage": "Fragment" }
+      ],
+      "GLSL": [
+        { "Path": "Composite.glsl", "Stage": "Vertex"   },
+        { "Path": "Composite.glsl", "Stage": "Fragment" }
+      ]
+    }
+  },
+  "Features": [
+    {
+      "Name": "ACES",
+      "Program": {
+        "Defines": ["ENABLE_TONEMAP_ACES"]
+      }
+    }
+  ],
+  "Preload": [
+    ["ACES"]
+  ]
+}

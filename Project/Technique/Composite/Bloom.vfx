@@ -1,0 +1,38 @@
+{
+  "Properties": {
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [],
+      "Primitive": "TriangleList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Pass", "Name": "Filter", "Type": "Float4" }
+    ],
+    "Textures": [
+      { "Name": "Scene", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Scene", "Frequency": "Pass", "Filter": "Linear" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "HLSL": [
+        { "Path": "Bloom.hlsl", "Stage": "Vertex"   },
+        { "Path": "Bloom.hlsl", "Stage": "Fragment" }
+      ],
+      "GLSL": [
+        { "Path": "Bloom.glsl", "Stage": "Vertex"   },
+        { "Path": "Bloom.glsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

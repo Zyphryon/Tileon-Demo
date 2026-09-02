@@ -1,0 +1,40 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "SrcAlpha",
+      "DstColor": "OneMinusSrcAlpha",
+      "SrcAlpha": "One",
+      "DstAlpha": "OneMinusSrcAlpha"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [],
+      "Primitive": "TriangleList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera",        "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "CameraInverse", "Type": "Float4", "Count": 4 },
+      { "Frequency": "Pass",  "Name": "Dimension",     "Type": "Float2" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "HLSL": [
+        { "Path": "Grid.hlsl", "Stage": "Vertex"   },
+        { "Path": "Grid.hlsl", "Stage": "Fragment" }
+      ],
+      "GLSL": [
+        { "Path": "Grid.glsl", "Stage": "Vertex"   },
+        { "Path": "Grid.glsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

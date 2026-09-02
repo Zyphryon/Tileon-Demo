@@ -1,0 +1,15 @@
+{
+  "Images": {
+    "Albedo": {
+      "Path": "Particles.tex"
+    }
+  },
+  "Samplers": {
+    "Albedo": {
+      "Filter": "LinearMipLinear",
+      "AddressModeU": "Clamp",
+      "AddressModeV": "Clamp",
+      "AddressModeW": "Clamp"
+    }
+  }
+}

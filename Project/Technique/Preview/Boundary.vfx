@@ -1,0 +1,53 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "SrcAlpha",
+      "DstColor": "OneMinusSrcAlpha",
+      "SrcAlpha": "One",
+      "DstAlpha": "OneMinusSrcAlpha"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "Float32x3", 0,  0, 1],
+        [1, "Float32x3", 0, 12, 1],
+        [2, "Float32x4", 0, 24, 1]
+      ],
+      "Primitive": "LineList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera", "Type": "Float4", "Count": 4 }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "HLSL": [
+        { "Path": "Boundary.hlsl", "Stage": "Vertex"   },
+        { "Path": "Boundary.hlsl", "Stage": "Fragment" }
+      ],
+      "GLSL": [
+        { "Path": "Boundary.glsl", "Stage": "Vertex"   },
+        { "Path": "Boundary.glsl", "Stage": "Fragment" }
+      ]
+    }
+  },
+  "Features": [
+    {
+      "Name": "Flat",
+      "Program": {
+        "Defines": ["BOUNDARY_FLAT"]
+      }
+    }
+  ],
+  "Preload": [
+    ["Flat"]
+  ]
+}

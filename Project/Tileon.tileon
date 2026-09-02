@@ -1,0 +1,10 @@
+{
+  "Metadata": {
+    "name": "Tileon",
+    "author": "Unknown",
+    "description": "No description provided."
+  },
+  "Configuration": {
+    "density": 32
+  }
+}

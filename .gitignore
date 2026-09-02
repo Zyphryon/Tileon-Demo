@@ -1,0 +1,5 @@
+# The preload bundle: the demo fetches the project instead of carrying it in the binary.
+*.data
+
+# Source art the runtime never reads, since it loads the baked .tex beside it.
+Project/Material/**/*.png

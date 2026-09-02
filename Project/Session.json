@@ -1,0 +1,23 @@
+{
+  "Workshop.Mode": "Tile",
+  "Selection.Tile": 3,
+  "Selection.Archetype": 2,
+  "Selection.Entity": 25769869840,
+  "Atelier.Perspective": "Ortho",
+  "Navigate.Panel": "",
+  "Selection.Tile.Target": 0,
+  "Selection.Archetype.Target": 0,
+  "Camera.X": 438,
+  "Camera.Y": 674.406250000000,
+  "Tools.Mode": "Ground",
+  "Viewport.Perspective": "Ortho",
+  "Terrain.Material": "Resources://Material/Tileset/TEST.mtl",
+  "Terrain.Slice": 1,
+  "Terrain.Blocked": "",
+  "Terrain.Shape": "Circle",
+  "Terrain.Radius": 1,
+  "Selection.Terrain": 2083,
+  "Viewport.Supersample": 1,
+  "Tools.Collision": false,
+  "Render.Quality": "High"
+}
