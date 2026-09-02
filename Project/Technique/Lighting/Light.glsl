@@ -31,8 +31,6 @@ const float kShadowLift      = 0.25;
 
 #ifdef VERTEX_SHADER
 
-// Spelled out because a variant that leaves one of these out shifts every location the linker picks after
-// it, and the layout the stage feeds does not shift with it.
 layout(location = 0) in vec4  a_Params0;    // center.xyz, radius || range
 
 #if defined(LIGHT_SPOT)

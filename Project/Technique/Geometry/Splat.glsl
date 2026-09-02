@@ -150,9 +150,7 @@ void main()
 #endif
     }
 
-    // TEMPORARY PROBE: each distinct palette slice hashes to its own colour.
-    float Probe = float(v_Palette[0]);
-    out_Albedo  = vec4(fract(Probe * 0.6180), fract(Probe * 0.3183), fract(Probe * 0.1290), 0.0);
+    out_Albedo = vec4(Albedo, 0.0);
 
 #ifdef ENABLE_NORMAL_MAPPING
     // The ground faces up, so the slope runs along the plane and world up stands at one.
