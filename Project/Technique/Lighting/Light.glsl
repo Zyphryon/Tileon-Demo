@@ -102,10 +102,10 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D t_Normal;
-uniform sampler2D t_Depth;
-uniform sampler2D t_Albedo;
-uniform sampler2D t_Shadow;
+layout(binding = 0) uniform sampler2D t_Normal;
+layout(binding = 1) uniform sampler2D t_Depth;
+layout(binding = 2) uniform sampler2D t_Albedo;
+layout(binding = 3) uniform sampler2D t_Shadow;
 
 in vec4 v_Probe;
 in vec4 v_Light;

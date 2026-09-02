@@ -41,7 +41,7 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D t_Scene;
+layout(binding = 0) uniform sampler2D t_Scene;
 
 in vec2 v_Texture;
 

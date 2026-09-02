@@ -83,10 +83,10 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D t_Albedo;
+layout(binding = 0) uniform sampler2D t_Albedo;
 
 #ifdef ENABLE_NORMAL_MAPPING
-uniform sampler2D t_Normal;
+layout(binding = 1) uniform sampler2D t_Normal;
 #endif
 
 in vec2 v_Texture;
@@ -99,7 +99,7 @@ in vec3 v_AxisY;
 in vec3 v_AxisZ;
 
 #ifdef ENABLE_RELIEF
-uniform sampler2D t_Relief;
+layout(binding = 2) uniform sampler2D t_Relief;
 
 // Returns how far below the quad the greyscale sinks this texel, in world units.
 float ReliefSink(vec2 Texture)

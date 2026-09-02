@@ -65,10 +65,10 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2DArray t_Weight;
-uniform sampler2DArray t_Albedo;
+layout(binding = 0) uniform sampler2DArray t_Weight;
+layout(binding = 1) uniform sampler2DArray t_Albedo;
 #ifdef ENABLE_NORMAL_MAPPING
-uniform sampler2DArray t_Normal;
+layout(binding = 2) uniform sampler2DArray t_Normal;
 #endif
 
 in vec2 v_Ground;

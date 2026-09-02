@@ -43,13 +43,13 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D t_Scene;
+layout(binding = 0) uniform sampler2D t_Scene;
 
 in vec2 v_Texture;
 
 layout(location = 0) out vec4 out_Color;
 
-uniform sampler2D t_Bloom;
+layout(binding = 1) uniform sampler2D t_Bloom;
 
 // GT7 is the curve the film is authored against; ACES is the variant a scene can ask for instead.
 #if defined(ENABLE_TONEMAP_ACES)

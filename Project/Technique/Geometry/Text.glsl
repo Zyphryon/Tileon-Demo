@@ -77,7 +77,7 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D t_Albedo;
+layout(binding = 0) uniform sampler2D t_Albedo;
 
 in vec4 v_Color;
 in vec2 v_Texture;

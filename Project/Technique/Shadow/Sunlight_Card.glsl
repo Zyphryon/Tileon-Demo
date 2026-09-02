@@ -59,7 +59,7 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-uniform sampler2D t_Albedo;
+layout(binding = 0) uniform sampler2D t_Albedo;
 
 in vec2  v_Texture;
 in float v_Along;
