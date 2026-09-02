@@ -8916,22 +8916,22 @@ if (Module['wasmBinary']) wasmBinary = Module['wasmBinary'];
 // end include: postlibrary.js
 
 var ASM_CONSTS = {
-  886536: ($0) => { try { const Constructor = window.AudioContext || window.webkitAudioContext; const Context = new Constructor({ sampleRate : $0, latencyHint : 'interactive' }); Module['zyWebAudio'] = Context; const Resume = function() { Context.resume(); }; document.addEventListener('click', Resume, { once : true }); document.addEventListener('keydown', Resume, { once : true }); document.addEventListener('touchstart', Resume, { once : true }); return 1; } catch (Error) { return 0; } },  
- 887010: () => { Module['zyWebAudio'].close(); },  
- 887044: () => { return Module['zyWebAudio'].currentTime; },  
- 887089: ($0, $1, $2) => { const Context = Module['zyWebAudio']; const Frames = $1; const Buffer = Context.createBuffer(2, Frames, Context.sampleRate); const Left = Buffer.getChannelData(0); const Right = Buffer.getChannelData(1); const Base = $0 >> 2; for (var Index = 0; Index < Frames; ++Index) { Left[Index] = HEAPF32[Base + Index * 2 + 0]; Right[Index] = HEAPF32[Base + Index * 2 + 1]; } const Source = Context.createBufferSource(); Source.buffer = Buffer; Source.connect(Context.destination); Source.start($2); },  
- 887583: () => { Module['zyWebAudio'].suspend(); },  
- 887619: () => { Module['zyWebAudio'].resume(); },  
- 887654: ($0, $1, $2) => { const jsMessage = UTF8ToString($0, $1); const jsMethod = (["debug", "info", "warn", "error"])[$2] || "log"; console[jsMethod](jsMessage); },  
- 887796: ($0, $1) => { document.title = UTF8ToString($0, $1); },  
- 887839: ($0) => { var jsElement = specialHTMLTargets['!ZyWindowHTML5']; if (jsElement) { jsElement.style.display = $0 ? 'block' : 'none'; } },  
- 887965: () => { var jsElement = specialHTMLTargets['!ZyWindowHTML5']; if (jsElement) { jsElement.focus(); } },  
- 888061: () => { return window.devicePixelRatio || 1.0; },  
- 888104: () => { specialHTMLTargets['!ZyWindowHTML5'] = Module.canvas; },  
- 888162: () => { return window.devicePixelRatio || 1.0; },  
+  886680: ($0) => { try { const Constructor = window.AudioContext || window.webkitAudioContext; const Context = new Constructor({ sampleRate : $0, latencyHint : 'interactive' }); Module['zyWebAudio'] = Context; const Resume = function() { Context.resume(); }; document.addEventListener('click', Resume, { once : true }); document.addEventListener('keydown', Resume, { once : true }); document.addEventListener('touchstart', Resume, { once : true }); return 1; } catch (Error) { return 0; } },  
+ 887154: () => { Module['zyWebAudio'].close(); },  
+ 887188: () => { return Module['zyWebAudio'].currentTime; },  
+ 887233: ($0, $1, $2) => { const Context = Module['zyWebAudio']; const Frames = $1; const Buffer = Context.createBuffer(2, Frames, Context.sampleRate); const Left = Buffer.getChannelData(0); const Right = Buffer.getChannelData(1); const Base = $0 >> 2; for (var Index = 0; Index < Frames; ++Index) { Left[Index] = HEAPF32[Base + Index * 2 + 0]; Right[Index] = HEAPF32[Base + Index * 2 + 1]; } const Source = Context.createBufferSource(); Source.buffer = Buffer; Source.connect(Context.destination); Source.start($2); },  
+ 887727: () => { Module['zyWebAudio'].suspend(); },  
+ 887763: () => { Module['zyWebAudio'].resume(); },  
+ 887798: ($0, $1, $2) => { const jsMessage = UTF8ToString($0, $1); const jsMethod = (["debug", "info", "warn", "error"])[$2] || "log"; console[jsMethod](jsMessage); },  
+ 887940: ($0, $1) => { document.title = UTF8ToString($0, $1); },  
+ 887983: ($0) => { var jsElement = specialHTMLTargets['!ZyWindowHTML5']; if (jsElement) { jsElement.style.display = $0 ? 'block' : 'none'; } },  
+ 888109: () => { var jsElement = specialHTMLTargets['!ZyWindowHTML5']; if (jsElement) { jsElement.focus(); } },  
  888205: () => { return window.devicePixelRatio || 1.0; },  
- 888248: () => { return (window.matchMedia('(dynamic-range: high)').matches) ? 1 : 0 },  
- 888316: () => { return location.protocol === 'https:' ? 1 : 0; }
+ 888248: () => { specialHTMLTargets['!ZyWindowHTML5'] = Module.canvas; },  
+ 888306: () => { return window.devicePixelRatio || 1.0; },  
+ 888349: () => { return window.devicePixelRatio || 1.0; },  
+ 888392: () => { return (window.matchMedia('(dynamic-range: high)').matches) ? 1 : 0 },  
+ 888460: () => { return location.protocol === 'https:' ? 1 : 0; }
 };
 
 // Imports from the Wasm binary.
