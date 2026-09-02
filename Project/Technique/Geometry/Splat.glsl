@@ -17,14 +17,14 @@
 
 #ifdef VERTEX_SHADER
 
-in ivec2 a_Origin;    // region corner, in tiles, relative to the frame's origin
-in uint  a_Weights;   // slice of the weight array, and above it how many slots it blends
-in uvec4 a_Palette;   // slice of the terrain array each of the four slots draws
-in vec4  a_Mapping;   // how often each slot repeats across one world unit
-in vec4  a_Phase0;    // where slots 0 and 1 already stand in their repeat, at the region's corner
-in vec4  a_Phase1;    // the same, for slots 2 and 3
-in uvec4 a_Tint;      // the color each slot's art is multiplied by, packed as RGBA8
-in vec4  a_Feather;   // how wide a band each slot's relief feathers over
+layout(location = 0) in ivec2 a_Origin;    // region corner, in tiles, relative to the frame's origin
+layout(location = 1) in uint  a_Weights;   // slice of the weight array, and above it how many slots it blends
+layout(location = 2) in uvec4 a_Palette;   // slice of the terrain array each of the four slots draws
+layout(location = 3) in vec4  a_Mapping;   // how often each slot repeats across one world unit
+layout(location = 4) in vec4  a_Phase0;    // where slots 0 and 1 already stand in their repeat, at the region's corner
+layout(location = 5) in vec4  a_Phase1;    // the same, for slots 2 and 3
+layout(location = 6) in uvec4 a_Tint;      // the color each slot's art is multiplied by, packed as RGBA8
+layout(location = 7) in vec4  a_Feather;   // how wide a band each slot's relief feathers over
 
 out vec2 v_Ground;
 flat out uint  v_Weights;
@@ -150,7 +150,9 @@ void main()
 #endif
     }
 
-    out_Albedo = vec4(Albedo, 0.0);
+    // TEMPORARY PROBE: each distinct palette slice hashes to its own colour.
+    float Probe = float(v_Palette[0]);
+    out_Albedo  = vec4(fract(Probe * 0.6180), fract(Probe * 0.3183), fract(Probe * 0.1290), 0.0);
 
 #ifdef ENABLE_NORMAL_MAPPING
     // The ground faces up, so the slope runs along the plane and world up stands at one.

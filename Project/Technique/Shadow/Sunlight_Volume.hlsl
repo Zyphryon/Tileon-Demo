@@ -21,7 +21,6 @@ struct vs_Input
     float4 Transform0 : SLOT0;
     float4 Transform1 : SLOT1;
     float4 Transform2 : SLOT2;
-
     float3 Size       : SLOT3;    // the ground covered along x and z, and the height reached along y
     uint   Face       : SLOT4;    // which face of the box this quad stands for
 };

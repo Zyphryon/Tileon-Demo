@@ -15,9 +15,9 @@
 
 #ifdef VERTEX_SHADER
 
-in vec3 a_Center;
-in vec3 a_Extent;
-in vec4 a_Tint;
+layout(location = 0) in vec3 a_Center;
+layout(location = 1) in vec3 a_Extent;
+layout(location = 2) in vec4 a_Tint;
 
 out vec4 v_Tint;
 

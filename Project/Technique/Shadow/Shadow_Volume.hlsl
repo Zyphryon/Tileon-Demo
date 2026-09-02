@@ -27,7 +27,6 @@ struct vs_Input
     float4 Transform0 : SLOT0;
     float4 Transform1 : SLOT1;
     float4 Transform2 : SLOT2;
-
     float3 Size       : SLOT3;    // the ground covered along x and z, and the height reached along y
     uint   Facing     : SLOT4;    // caster slot, wrap copy and which side of the box this is
 };

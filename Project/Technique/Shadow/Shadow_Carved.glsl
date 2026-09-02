@@ -27,13 +27,12 @@ const uint kFacingMirrorShift = kFacingSideShift + 2u;
 
 #ifdef VERTEX_SHADER
 
-in vec4 a_Transform0;
-in vec4 a_Transform1;
-in vec4 a_Transform2;
-
-in vec3 a_Size;
-in uint a_Facing;
-in vec4 a_Frame;
+layout(location = 0) in vec4 a_Transform0;
+layout(location = 1) in vec4 a_Transform1;
+layout(location = 2) in vec4 a_Transform2;
+layout(location = 3) in vec3 a_Size;
+layout(location = 4) in uint a_Facing;
+layout(location = 5) in vec4 a_Frame;
 
 out vec2  v_Texture;
 out float v_Radial;

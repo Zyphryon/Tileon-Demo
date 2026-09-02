@@ -31,17 +31,19 @@ const float kShadowLift      = 0.25;
 
 #ifdef VERTEX_SHADER
 
-in vec4 a_Params0;    // center.xyz, radius || range
+// Spelled out because a variant that leaves one of these out shifts every location the linker picks after
+// it, and the layout the stage feeds does not shift with it.
+layout(location = 0) in vec4  a_Params0;    // center.xyz, radius || range
 
 #if defined(LIGHT_SPOT)
-in vec4 a_Params1;    // direction.xyz, cos(inner)
+layout(location = 1) in vec4  a_Params1;    // direction.xyz, cos(inner)
 #endif
 
-in vec4 a_Color;      // rgb, falloff
-in float a_Slot;       // band of the shadow atlas, or -1 when the light casts none
+layout(location = 2) in vec4  a_Color;      // rgb, falloff
+layout(location = 3) in float a_Slot;       // band of the shadow atlas, or -1 when the light casts none
 
 #if defined(LIGHT_SPOT)
-in float a_Outer;      // cos(outer)
+layout(location = 4) in float a_Outer;      // cos(outer)
 #endif
 
 out vec4 v_Probe;     // clip.xy, screen.xy

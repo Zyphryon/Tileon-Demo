@@ -22,7 +22,6 @@ struct vs_Input
     float4 Transform0  : SLOT0;
     float4 Transform1  : SLOT1;
     float4 Transform2  : SLOT2;
-
     float4 Frame       : SLOT3;
     float2 Size        : SLOT4;
     float4 Color       : SLOT5;

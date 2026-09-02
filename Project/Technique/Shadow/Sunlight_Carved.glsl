@@ -27,12 +27,12 @@ const uint kSideMask        = 3u;
 
 #ifdef VERTEX_SHADER
 
-in vec4 a_Transform0;
-in vec4 a_Transform1;
-in vec4 a_Transform2;
-in vec3 a_Size;       // the ground covered along x and z, and the height reached along y
-in uint a_Side;       // which upright side this quad stands for, and how the art is turned
-in vec4 a_Frame;      // the art's crop within the sheet it is packed in
+layout(location = 0) in vec4 a_Transform0;
+layout(location = 1) in vec4 a_Transform1;
+layout(location = 2) in vec4 a_Transform2;
+layout(location = 3) in vec3 a_Size;       // the ground covered along x and z, and the height reached along y
+layout(location = 4) in uint a_Side;       // which upright side this quad stands for, and how the art is turned
+layout(location = 5) in vec4 a_Frame;      // the art's crop within the sheet it is packed in
 
 out float v_Along;    // how far along the sun the side stands, over the map's own span
 out vec2  v_Texture;  // the texel of the art the side is cut out by

@@ -42,11 +42,11 @@ layout(std140, binding = 3) uniform cb_Instance
 
 #ifdef VERTEX_SHADER
 
-in vec4  a_Frame;   // normalized atlas edges: minimum.xy, maximum.xy
-in ivec2 a_Offset;  // corner within the text layout, in subpixel steps
-in uvec2 a_Size;    // extent, in subpixel steps
-in uint a_Effect;   // the interned effect slot
-in vec4  a_Color;
+layout(location = 0) in vec4  a_Frame;   // normalized atlas edges: minimum.xy, maximum.xy
+layout(location = 1) in ivec2 a_Offset;  // corner within the text layout, in subpixel steps
+layout(location = 2) in uvec2 a_Size;    // extent, in subpixel steps
+layout(location = 3) in uint  a_Effect;   // the interned effect slot
+layout(location = 4) in vec4  a_Color;
 
 out vec4 v_Color;
 out vec2 v_Texture;

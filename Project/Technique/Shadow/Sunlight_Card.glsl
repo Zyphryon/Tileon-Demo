@@ -23,9 +23,9 @@ const float kCardLift   = 0.15;
 
 #ifdef VERTEX_SHADER
 
-in vec4 a_Center;    // the anchor the art stands on, with w unused
-in vec4 a_Size;      // how wide and tall the art stands, with zw unused
-in vec4 a_Frame;     // the art's crop within the sheet it is packed in
+layout(location = 0) in vec4 a_Center;    // the anchor the art stands on, with w unused
+layout(location = 1) in vec4 a_Size;      // how wide and tall the art stands, with zw unused
+layout(location = 2) in vec4 a_Frame;     // the art's crop within the sheet it is packed in
 
 out vec2  v_Texture;
 out float v_Along;   // how far along the sun the card stands, over the map's own span

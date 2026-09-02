@@ -26,14 +26,14 @@ layout(std140, binding = 2) uniform cb_Material
 
 #ifdef VERTEX_SHADER
 
-in vec4 a_Transform0;
-in vec4 a_Transform1;
-in vec4 a_Transform2;
+layout(location = 0) in vec4 a_Transform0;
+layout(location = 1) in vec4 a_Transform1;
+layout(location = 2) in vec4 a_Transform2;
 
-in vec4 a_Frame;
-in vec2 a_Size;
-in vec4 a_Color;
-in uint a_Orientation;
+layout(location = 3) in vec4 a_Frame;
+layout(location = 4) in vec2 a_Size;
+layout(location = 5) in vec4 a_Color;
+layout(location = 6) in uint a_Orientation;
 
 out vec2 v_Texture;
 out vec4 v_Color;

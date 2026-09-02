@@ -20,11 +20,11 @@ layout(std140, binding = 1) uniform cb_Pass
 
 #ifdef VERTEX_SHADER
 
-in vec4 a_Transform0;
-in vec4 a_Transform1;
-in vec4 a_Transform2;
-in vec3 a_Size;       // the ground covered along x and z, and the height reached along y
-in uint a_Face;       // which face of the box this quad stands for
+layout(location = 0) in vec4 a_Transform0;
+layout(location = 1) in vec4 a_Transform1;
+layout(location = 2) in vec4 a_Transform2;
+layout(location = 3) in vec3 a_Size;       // the ground covered along x and z, and the height reached along y
+layout(location = 4) in uint a_Face;       // which face of the box this quad stands for
 
 out float v_Along;    // how far along the sun the face stands, over the map's own span
 
