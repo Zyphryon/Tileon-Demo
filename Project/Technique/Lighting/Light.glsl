@@ -38,10 +38,10 @@ layout(location = 1) in vec4  a_Params1;    // direction.xyz, cos(inner)
 #endif
 
 layout(location = 2) in vec4  a_Color;      // rgb, falloff
-layout(location = 3) in float a_Slot;       // band of the shadow atlas, or -1 when the light casts none
+layout(location = 4) in float a_Slot;       // band of the shadow atlas, or -1 when the light casts none
 
 #if defined(LIGHT_SPOT)
-layout(location = 4) in float a_Outer;      // cos(outer)
+layout(location = 3) in float a_Outer;      // cos(outer)
 #endif
 
 out vec4 v_Probe;     // clip.xy, screen.xy
