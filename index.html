@@ -68,6 +68,9 @@
             }
         };
 
+        // Right click is the editor's, not the page's: it removes what the cursor is over.
+        Canvas.addEventListener("contextmenu", (Event) => Event.preventDefault());
+
         window.onerror = () => Module.setStatus("Something went wrong — see the console.");
     </script>
 
