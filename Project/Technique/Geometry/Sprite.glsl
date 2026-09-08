@@ -5,7 +5,9 @@
 // file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+#ifndef GL_ES
 #extension GL_ARB_conservative_depth : enable
+#endif
 
 #include "Embedded://Shader/Vertex.glsl"
 #include "Embedded://Shader/Depth.glsl"

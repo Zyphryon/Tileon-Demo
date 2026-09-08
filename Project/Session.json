@@ -10,8 +10,7 @@
   "Camera.X": 414.981262207031,
   "Camera.Y": 701.207885742188,
   "Tools.Mode": "Entity",
-  "Viewport.Perspective": "Axonometric",
-  "Terrain.Material": "Resources://Material/Tileset/TEST.mtl",
+  "Viewport.Perspective": "Ortho",
   "Terrain.Slice": 1,
   "Terrain.Blocked": "",
   "Terrain.Shape": "Circle",
@@ -19,7 +18,7 @@
   "Selection.Terrain": 2059,
   "Viewport.Supersample": 1,
   "Tools.Collision": true,
-  "Render.Quality": "High",
+  "Render.Quality": "Medium",
   "Scatter.Palette": "",
   "Tools.Brush": "Select"
 }
