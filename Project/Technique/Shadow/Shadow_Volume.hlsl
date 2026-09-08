@@ -1,13 +1,12 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
-#include "Resources://Technique/Common/Affine.hlsl"
+#include "Embedded://Shader/Affine.hlsl"
 #include "Resources://Technique/Common/Shadow.hlsl"
 
 cbuffer cb_Pass : register(b1)
@@ -34,7 +33,6 @@ struct vs_Input
 struct fs_Input
 {
     float4 Position   : SV_POSITION;
-    float  Radial     : TEXCOORD0;    // distance from the caster, over its radius
 };
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -68,8 +66,8 @@ fs_Input main(vs_Input Input)
     const uint   Part   = Input.Facing & kFacingPartMask;
     const uint   Parts  = ((Input.Facing >> kFacingSizeShift) & kFacingPartMask) + 1u;
 
-    const Affine Transform = ReadAffine(Input.Transform0, Input.Transform1, Input.Transform2);
-    const float3 Position  = ApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, Input.Size));
+    const ZyAffine Transform = ZyReadAffine(Input.Transform0, Input.Transform1, Input.Transform2);
+    const float3   Position  = ZyApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, Input.Size));
 
     const uint   Slot   = (Input.Facing >> kFacingSlotShift) & kFacingSlotMask;
     const float4 Caster = u_Caster[Slot];
@@ -90,7 +88,7 @@ fs_Input main(vs_Input Input)
         for (uint Index = 0; Index < 4; ++Index)
         {
             const float3 Local = PlaceSide(Side, ZyEmitRect(Index), Part, Parts, Input.Size);
-            const float  Turn  = ShadowSwing(ApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
+            const float  Turn  = ShadowSwing(ZyApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
 
             Lowest = min(Lowest, Turn);
             Widest = max(Widest, Turn);
@@ -100,7 +98,6 @@ fs_Input main(vs_Input Input)
         {
             // Every corner goes off the map, so the copy covers no area at all.
             Result.Position = kShadowDiscarded;
-            Result.Radial   = 0.0;
 
             return Result;
         }
@@ -110,8 +107,8 @@ fs_Input main(vs_Input Input)
     // Indexing by the tangent keeps an upright side's vertical edge straight, since its radius never changes.
     const float Height = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    Result.Position = PlaceAtlas(U, ShadowRow(float(Slot), Height));
-    Result.Radial   = Radial / max(Caster.w, 0.0001);
+    Result.Position   = PlaceAtlas(U, ShadowRow(float(Slot), Height));
+    Result.Position.z = Radial / max(Caster.w, 0.0001);
 
     return Result;
 }
@@ -124,10 +121,9 @@ fs_Input main(vs_Input Input)
 
 #ifdef FRAGMENT_SHADER
 
-float main(fs_Input Input) : SV_Target0
+/// The map keeps the nearest blocker, which the depth test settles on its own.
+void main(fs_Input Input)
 {
-    // Art drawn with the view already in it has no silhouette to test, so the whole side blocks.
-    return saturate(Input.Radial);
 }
 
 #endif // FRAGMENT_SHADER

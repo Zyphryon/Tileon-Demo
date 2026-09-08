@@ -30,16 +30,18 @@
       { "Frequency": "Frame",    "Name": "CameraInverse", "Type": "Float4", "Count": 4 }
     ],
     "Textures": [
-      { "Name": "Normal", "Frequency": "Pass" },
-      { "Name": "Depth",  "Frequency": "Pass" },
-      { "Name": "Albedo", "Frequency": "Pass" },
-      { "Name": "Shadow", "Frequency": "Pass" }
+      { "Name": "Normal",   "Frequency": "Pass" },
+      { "Name": "Depth",    "Frequency": "Pass" },
+      { "Name": "Albedo",   "Frequency": "Pass" },
+      { "Name": "Shadow",   "Frequency": "Pass" },
+      { "Name": "Shadowed", "Frequency": "Pass" }
     ],
     "Samplers": [
-      { "Name": "Normal", "Frequency": "Pass", "Filter": "Point" },
-      { "Name": "Depth",  "Frequency": "Pass", "Filter": "Point" },
-      { "Name": "Albedo", "Frequency": "Pass", "Filter": "Point" },
-      { "Name": "Shadow", "Frequency": "Pass", "Filter": "Point", "AddressModeU": "Repeat" }
+      { "Name": "Normal",   "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Depth",    "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Albedo",   "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Shadow",   "Frequency": "Pass", "Filter": "Point",  "AddressModeU": "Repeat" },
+      { "Name": "Shadowed", "Frequency": "Pass", "Filter": "Linear", "AddressModeU": "Repeat", "Comparison": "LessEqual" }
     ]
   },
   "Program": {

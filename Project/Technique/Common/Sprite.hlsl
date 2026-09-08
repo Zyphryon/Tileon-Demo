@@ -1,40 +1,45 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #ifndef TILEON_SPRITE_INCLUDED
 #define TILEON_SPRITE_INCLUDED
 
 #include "Scene.hlsl"
-#include "Affine.hlsl"
+#include "Embedded://Shader/Affine.hlsl"
 
 /// The bit that lays the art down mirrored across its own width.
-static const uint kMirrorX    = 1u;
+static const uint kMirrorX      = 1u;
 
 /// The bit that lays the art down mirrored across its own height.
-static const uint kMirrorY    = 2u;
+static const uint kMirrorY      = 2u;
 
 /// Where the pair of bits naming the plane the art is laid against begins.
-static const uint kPlaneShift = 2u;
+static const uint kPlaneShift   = 2u;
 
 /// The pair of bits naming the plane the art is laid against.
-static const uint kPlaneMask  = 3u;
+static const uint kPlaneMask    = 3u;
 
 /// The bit that says the art already carries the projection, and has to land unsheared.
-static const uint kUnsheared  = 16u;
+static const uint kUnsheared    = 16u;
+
+/// The bit that says the art tiles across the card as the card is stretched, rather than stretching with it.
+static const uint kTiled        = 32u;
+
+/// Where the layer of a layered material begins in the orientation word.
+static const uint kLayerShift   = 20u;
 
 /// The art stands up, facing the eye.
-static const uint kPlaneUpright     = 0u;
+static const uint kPlaneUpright = 0u;
 
 /// The art lies flat on the ground.
-static const uint kPlaneGround      = 1u;
+static const uint kPlaneGround  = 1u;
 
 /// The art stands on the other side the camera sees, facing along the ground instead of across it.
-static const uint kPlaneSide        = 2u;
+static const uint kPlaneSide    = 2u;
 
 /// \brief Represents the face an instance turns towards, and the pair of directions its art spans.
 struct Face
@@ -56,6 +61,9 @@ struct Face
 
     /// What one unit of the art's height covers once it lands.
     float3 SpanV;
+
+    /// Whether the art is a side seen edge-on with the projection in it: a run lying along z.
+    bool Edge;
 };
 
 /// \brief Reads which way an instance faces and what its art spans.
@@ -64,22 +72,31 @@ struct Face
 /// \param Transform The local axes the art is laid down along.
 ///
 /// \return The face the art turns towards, and the pair of directions it spans.
-Face ReadFace(uint Orientation, Affine Transform)
+Face ReadFace(uint Orientation, ZyAffine Transform)
 {
     Face Result;
 
     Result.Plane  = (Orientation >> kPlaneShift) & kPlaneMask;
 
-    Result.AxisU  = (Result.Plane == kPlaneSide)   ? Transform.ColumnZ : Transform.ColumnX;
-    Result.AxisV  = (Result.Plane == kPlaneGround) ? Transform.ColumnZ : Transform.ColumnY;
+    const bool Unsheared = (Orientation & kUnsheared) != 0u;
+	
+    // A side seen edge-on with the projection in its art is a run lying along the ground, x across and z along,
+    // so it stands nowhere, stretches with the z scale, and its tiles repeat along it; only its normal is the eye's.
+    Result.Edge   = Unsheared && Result.Plane == kPlaneSide;
+
+    Result.AxisU  = (Result.Plane == kPlaneSide && !Result.Edge)  ? Transform.ColumnZ : Transform.ColumnX;
+    Result.AxisV  = (Result.Plane == kPlaneGround || Result.Edge) ? Transform.ColumnZ : Transform.ColumnY;
     Result.Normal = (Result.Plane == kPlaneGround) ? Transform.ColumnY
                   : (Result.Plane == kPlaneSide)   ? Transform.ColumnX : -Transform.ColumnZ;
 
-    // Art carrying the projection already spans the screen, so it blocks along the same pair of directions.
-    const bool Unsheared = (Orientation & kUnsheared) != 0u;
+    Result.SpanU  = (Unsheared && !Result.Edge) ? u_ScreenX.xyz * length(Result.AxisU) : Result.AxisU;
+    Result.SpanV  = (Unsheared && !Result.Edge) ? u_ScreenY.xyz * length(Result.AxisV) : Result.AxisV;
 
-    Result.SpanU  = Unsheared ? u_ScreenX.xyz * length(Transform.ColumnX) : Result.AxisU;
-    Result.SpanV  = Unsheared ? u_ScreenY.xyz * length(Transform.ColumnY) : Result.AxisV;
+    // Its map was authored in that same frame, so the face it turns towards is the eye, whatever its plane says.
+    if (Unsheared)
+    {
+        Result.Normal = -mul(u_CameraInverse, float4(0.0, 0.0, 1.0, 0.0)).xyz;
+    }
 
     return Result;
 }
@@ -92,7 +109,7 @@ Face ReadFace(uint Orientation, Affine Transform)
 /// \param Size      The extent the art covers along each of the two directions it spans.
 ///
 /// \return The corner, in the world.
-float3 PlaceCorner(Affine Transform, Face Surface, float2 Corner, float2 Size)
+float3 PlaceCorner(ZyAffine Transform, Face Surface, float2 Corner, float2 Size)
 {
     return Transform.Origin + Corner.x * Size.x * Surface.SpanU + Corner.y * Size.y * Surface.SpanV;
 }

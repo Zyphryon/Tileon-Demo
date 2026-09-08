@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
@@ -37,7 +36,6 @@ struct fs_Input
 {
     float4 Position   : SV_POSITION;
     float2 Texture    : TEXCOORD0;    // the texel of the art the side is cut out by
-    float  Radial     : TEXCOORD1;    // distance from the caster, over its radius
 };
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -71,8 +69,8 @@ fs_Input main(vs_Input Input)
     const uint   Part   = Input.Facing & kFacingPartMask;
     const uint   Parts  = ((Input.Facing >> kFacingSizeShift) & kFacingPartMask) + 1u;
 
-    const Affine Transform = ReadAffine(Input.Transform0, Input.Transform1, Input.Transform2);
-    const float3 Position  = ApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, Input.Size));
+    const ZyAffine Transform = ZyReadAffine(Input.Transform0, Input.Transform1, Input.Transform2);
+    const float3   Position  = ZyApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, Input.Size));
 
     const uint   Slot   = (Input.Facing >> kFacingSlotShift) & kFacingSlotMask;
     const float4 Caster = u_Caster[Slot];
@@ -93,7 +91,7 @@ fs_Input main(vs_Input Input)
         for (uint Index = 0; Index < 4; ++Index)
         {
             const float3 Local = PlaceSide(Side, ZyEmitRect(Index), Part, Parts, Input.Size);
-            const float  Turn  = ShadowSwing(ApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
+            const float  Turn  = ShadowSwing(ZyApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
 
             Lowest = min(Lowest, Turn);
             Widest = max(Widest, Turn);
@@ -104,24 +102,22 @@ fs_Input main(vs_Input Input)
             // Every corner goes off the map, so the copy covers no area at all.
             Result.Position = kShadowDiscarded;
             Result.Texture  = float2(0.0, 0.0);
-            Result.Radial   = 0.0;
 
             return Result;
         }
         U += (Where.Anchor < 0.5) ? 1.0 : -1.0;
     }
 
-    // The side runs across its own slice of the art, whatever the box it stands on measures, so the
-    // whole crop is always covered and a doorway anywhere in it lets the light straight through.
+    // The side runs across its own slice of the art, so a doorway anywhere in it lets the light through.
     const float  Along  = (float(Part) + Corner.x) / float(Parts);
     const float2 Sample = ReadSample(Input.Facing >> kFacingMirrorShift, float2(Along, Corner.y));
 
     // Indexing by the tangent keeps an upright side's vertical edge straight, since its radius never changes.
     const float Height = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    Result.Position = PlaceAtlas(U, ShadowRow(float(Slot), Height));
-    Result.Texture  = lerp(Input.Frame.xy, Input.Frame.zw, Sample);
-    Result.Radial   = Radial / max(Caster.w, 0.0001);
+    Result.Position   = PlaceAtlas(U, ShadowRow(float(Slot), Height));
+    Result.Position.z = Radial / max(Caster.w, 0.0001);
+    Result.Texture    = lerp(Input.Frame.xy, Input.Frame.zw, Sample);
 
     return Result;
 }
@@ -137,12 +133,10 @@ fs_Input main(vs_Input Input)
 Texture2D    t_Albedo : register(t0);
 SamplerState s_Albedo : register(s0);
 
-float main(fs_Input Input) : SV_Target0
+/// The map keeps the nearest blocker, which the depth test settles once the cutout is carved away.
+void main(fs_Input Input)
 {
-    // The art's own cutout is the blocker, so a window in the wall lets the light straight through.
     clip(t_Albedo.Sample(s_Albedo, Input.Texture).a - 0.5);
-
-    return saturate(Input.Radial);
 }
 
 #endif // FRAGMENT_SHADER

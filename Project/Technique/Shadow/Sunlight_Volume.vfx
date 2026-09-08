@@ -1,16 +1,8 @@
 {
   "Properties": {
-    "Blend": {
-      "SrcColor": "One",
-      "DstColor": "One",
-      "EquationColor": "Min",
-      "SrcAlpha": "One",
-      "DstAlpha": "One",
-      "EquationAlpha": "Min"
-    },
     "Depth": {
-      "Mask": false,
-      "Condition": "Always"
+      "Mask": true,
+      "Condition": "LessEqual"
     },
     "Rasterizer": {
       "Cull": "None"
@@ -28,8 +20,7 @@
   },
   "Signature": {
     "Uniforms": [
-      { "Frequency": "Pass", "Name": "Sunlight", "Type": "Float4", "Count": 4 },
-      { "Frequency": "Pass", "Name": "Toward",   "Type": "Float4" }
+      { "Frequency": "Pass", "Name": "Sunlight", "Type": "Float4", "Count": 4 }
     ]
   },
   "Program": {

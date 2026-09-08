@@ -1,0 +1,66 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "SrcAlpha",
+      "DstColor": "OneMinusSrcAlpha",
+      "SrcAlpha": "Zero",
+      "DstAlpha": "OneMinusSrcAlpha"
+    },
+    "Depth": {
+      "Mask": true,
+      "Condition": "LessEqual"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "SInt32x2", 0, 0, 1],
+        [1, "UInt32x1", 0, 8, 1]
+      ],
+      "Primitive": "TriangleStrip"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera",  "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "ScreenY", "Type": "Float4" },
+      { "Frequency": "Frame", "Name": "Origin",  "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Tide",    "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Shallow", "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Deep",    "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Foam",    "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Surf",    "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Sheen",   "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Wind",    "Type": "Float4" },
+      { "Frequency": "Material", "Name": "Weave",   "Type": "Float", "Value": 14.0 },
+      { "Frequency": "Material", "Name": "Speckle", "Type": "Float", "Value": 6.0 }
+    ],
+    "Textures": [
+      { "Name": "Relief",  "Frequency": "Pass" },
+      { "Name": "Caustic", "Frequency": "Pass" },
+      { "Name": "Noise",   "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Relief",  "Frequency": "Pass", "Filter": "Linear" },
+      { "Name": "Caustic", "Frequency": "Pass", "AddressModeU": "Repeat", "AddressModeV": "Repeat", "Filter": "LinearMipLinear" },
+      { "Name": "Noise",   "Frequency": "Pass", "AddressModeU": "Repeat", "AddressModeV": "Repeat", "Filter": "LinearMipLinear" }
+    ]
+  },
+  "Program": {
+    "Defines": [
+      "OCEAN_UNITS_PER_REGION=32.0",
+      "OCEAN_MAP_BORDER=1.0"
+    ],
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Ocean.glsl", "Stage": "Vertex" },
+        { "Path": "Ocean.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Ocean.hlsl", "Stage": "Vertex" },
+        { "Path": "Ocean.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

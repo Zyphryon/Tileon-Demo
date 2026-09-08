@@ -1,0 +1,33 @@
+{
+  "Images": {
+    "Albedo": {
+      "Path": "33.tex"
+    },
+    "Normal": {
+      "Path": "Resources://Material/Floor/33_normal.tex"
+    },
+    "Relief": {
+      "Path": "Resources://Material/Floor/33_height.tex"
+    }
+  },
+  "Samplers": {
+    "Albedo": {
+      "Filter": "PointMipLinear",
+      "AddressModeU": "Repeat",
+      "AddressModeV": "Repeat",
+      "AddressModeW": "Repeat"
+    },
+    "Normal": {
+      "Filter": "PointMipLinear",
+      "AddressModeU": "Repeat",
+      "AddressModeV": "Repeat",
+      "AddressModeW": "Repeat"
+    },
+    "Relief": {
+      "Filter": "PointMipLinear",
+      "AddressModeU": "Repeat",
+      "AddressModeV": "Repeat",
+      "AddressModeW": "Repeat"
+    }
+  }
+}

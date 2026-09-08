@@ -45,9 +45,15 @@
       "Program": {
         "Defines": ["BOUNDARY_FLAT"]
       }
+    },
+    {
+      "Name": "Rounded",
+      "Program": {
+        "Defines": ["BOUNDARY_ROUNDED"]
+      }
     }
   ],
   "Preload": [
-    ["Flat"]
+    ["Flat"], ["Rounded"]
   ]
 }

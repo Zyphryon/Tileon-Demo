@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
@@ -145,8 +144,7 @@ void main()
         Albedo += Source[Slot].rgb * v_Tint[Slot].rgb * Weight[Slot];
 
 #ifdef ENABLE_NORMAL_MAPPING
-        // Averaging unit normals pulls a meeting toward flat, so the slopes each one stands at are mixed.
-        Slope += Tangent[Slot].xy * ((1.0 / max(Tangent[Slot].z, 0.0001)) * Weight[Slot]);
+        Slope += vec2(Tangent[Slot].x, -Tangent[Slot].y) * ((1.0 / max(Tangent[Slot].z, 0.0001)) * Weight[Slot]);
 #endif
     }
 

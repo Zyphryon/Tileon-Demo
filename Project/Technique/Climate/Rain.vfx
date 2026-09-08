@@ -1,0 +1,67 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "One",
+      "DstColor": "OneMinusSrcAlpha",
+      "SrcAlpha": "Zero",
+      "DstAlpha": "One"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [],
+      "Primitive": "TriangleList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera",        "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "CameraInverse", "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "ScreenX",       "Type": "Float4" },
+      { "Frequency": "Frame", "Name": "ScreenY",       "Type": "Float4" },
+      { "Frequency": "Frame", "Name": "Origin",        "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Tint",          "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Light",         "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Fall",          "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Wet",           "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Flash",         "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Wind",          "Type": "Float4" }
+    ],
+    "Textures": [
+      { "Name": "Depth",  "Frequency": "Pass" },
+      { "Name": "Normal", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Depth",  "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Normal", "Frequency": "Pass", "Filter": "Point" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Rain.glsl", "Stage": "Vertex" },
+        { "Path": "Rain.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Rain.hlsl", "Stage": "Vertex" },
+        { "Path": "Rain.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  },
+  "Features": [
+    {
+      "Name": "Sheltered",
+      "Program": {
+        "Defines": ["RAIN_SPLASHING", "RAIN_SHELTERED"]
+      }
+    }
+  ],
+  "Preload": [
+    ["Sheltered"]
+  ]
+}

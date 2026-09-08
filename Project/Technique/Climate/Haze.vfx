@@ -1,0 +1,71 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "One",
+      "DstColor": "OneMinusSrcAlpha",
+      "SrcAlpha": "Zero",
+      "DstAlpha": "One"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [],
+      "Primitive": "TriangleList"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera",        "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "CameraInverse", "Type": "Float4", "Count": 4 },
+      { "Frequency": "Frame", "Name": "Origin",        "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Tint",          "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Sky",           "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Sun",           "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Mist",          "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Wind",          "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Sunlight",      "Type": "Float4", "Count": 4 }
+    ],
+    "Textures": [
+      { "Name": "Depth",    "Frequency": "Pass" },
+      { "Name": "Sunlight", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Depth",    "Frequency": "Pass", "Filter": "Point" },
+      { "Name": "Sunlight", "Frequency": "Pass", "Filter": "Linear", "Comparison": "LessEqual" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Haze.glsl", "Stage": "Vertex" },
+        { "Path": "Haze.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Haze.hlsl", "Stage": "Vertex" },
+        { "Path": "Haze.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  },
+  "Features": [
+    {
+      "Name": "Layered",
+      "Program": {
+        "Defines": ["HAZE_LAYERED"]
+      }
+    },
+    {
+      "Name": "Volumetric",
+      "Program": {
+        "Defines": ["HAZE_VOLUMETRIC"]
+      }
+    }
+  ],
+  "Preload": [
+    ["Layered"], ["Volumetric"]
+  ]
+}

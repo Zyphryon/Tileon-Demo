@@ -1,0 +1,57 @@
+{
+  "Properties": {
+    "Depth": {
+      "Mask": true,
+      "Condition": "LessEqual"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "Float32x4", 0,  0, 1],
+        [1, "Float32x4", 0, 16, 1],
+        [2, "Float32x4", 0, 32, 1],
+        [3, "Float32x4", 0, 48, 1]
+      ],
+      "Primitive": "TriangleStrip"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Pass", "Name": "Sunlight", "Type": "Float4", "Count": 4 }
+    ],
+    "Textures": [
+      { "Name": "Albedo" }
+    ],
+    "Samplers": [
+      { "Name": "Albedo", "Filter": "Linear" }
+    ]
+  },
+  "Program": {
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Sunlight_Cutout.glsl", "Stage": "Vertex" },
+        { "Path": "Sunlight_Cutout.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Sunlight_Cutout.hlsl", "Stage": "Vertex" },
+        { "Path": "Sunlight_Cutout.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  },
+  "Features": [
+    {
+      "Name": "Layered",
+      "Enable": {
+        "Parameter": "Layered"
+      },
+      "Program": {
+        "Defines": ["ENABLE_LAYERED"]
+      }
+    }
+  ],
+  "Preload": [
+    ["Layered"]
+  ]
+}

@@ -1,16 +1,23 @@
 {
-  "Images": {
-    "Albedo": {
-      "Path": "Blendset.tex"
+    "Images": {
+        "Albedo": {
+            "Path": "Blendset.tex"
+        },
+        "Normal": {
+            "Path": "Blendset_n.tex"
+        },
+        "Surface": {
+            "Path": "Blendset_s.tex"
+        }
     },
-    "Normal": {
-      "Path": "Blendset_n.tex"
+    "Parameters": {
+        "Height": {
+            "Type": "Bool",
+            "Value": true
+        },
+        "Layered": {
+            "Type": "Bool",
+            "Value": true
+        }
     }
-  },
-  "Parameters": {
-    "Height": {
-      "Type": "Bool",
-      "Value": true
-    }
-  }
 }

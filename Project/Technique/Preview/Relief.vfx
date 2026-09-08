@@ -1,0 +1,53 @@
+{
+  "Properties": {
+    "Blend": {
+      "SrcColor": "SrcAlpha",
+      "DstColor": "OneMinusSrcAlpha",
+      "SrcAlpha": "One",
+      "DstAlpha": "OneMinusSrcAlpha"
+    },
+    "Depth": {
+      "Mask": false,
+      "Condition": "Always"
+    },
+    "Rasterizer": {
+      "Cull": "None"
+    },
+    "Layout": {
+      "Attributes": [
+        [0, "SInt32x2", 0, 0, 1],
+        [1, "UInt32x1", 0, 8, 1]
+      ],
+      "Primitive": "TriangleStrip"
+    }
+  },
+  "Signature": {
+    "Uniforms": [
+      { "Frequency": "Frame", "Name": "Camera",  "Type": "Float4", "Count": 4 },
+      { "Frequency": "Pass",  "Name": "Terrain", "Type": "Float4" },
+      { "Frequency": "Pass",  "Name": "Contour", "Type": "Float4" }
+    ],
+    "Textures": [
+      { "Name": "Relief", "Frequency": "Pass" }
+    ],
+    "Samplers": [
+      { "Name": "Relief", "Frequency": "Pass", "Filter": "Linear" }
+    ]
+  },
+  "Program": {
+    "Defines": [
+      "RELIEF_UNITS_PER_REGION=32.0",
+      "RELIEF_MAP_BORDER=1.0"
+    ],
+    "Shaders": {
+      "GLSL": [
+        { "Path": "Relief.glsl", "Stage": "Vertex" },
+        { "Path": "Relief.glsl", "Stage": "Fragment" }
+      ],
+      "HLSL": [
+        { "Path": "Relief.hlsl", "Stage": "Vertex" },
+        { "Path": "Relief.hlsl", "Stage": "Fragment" }
+      ]
+    }
+  }
+}

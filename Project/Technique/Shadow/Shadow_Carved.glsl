@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
@@ -35,7 +34,6 @@ layout(location = 4) in uint a_Facing;
 layout(location = 5) in vec4 a_Frame;
 
 out vec2  v_Texture;
-out float v_Radial;
 
 /// Places one corner of a side in the box's own space, over the share of it this draw covers.
 vec3 PlaceSide(uint Side, vec2 Corner, uint Part, uint Parts, vec3 Size)
@@ -60,8 +58,8 @@ void main()
     uint Part  = a_Facing & kFacingPartMask;
     uint Parts = ((a_Facing >> kFacingSizeShift) & kFacingPartMask) + 1u;
 
-    Affine Transform = ReadAffine(a_Transform0, a_Transform1, a_Transform2);
-    vec3   Position  = ApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, a_Size));
+    ZyAffine Transform = ZyReadAffine(a_Transform0, a_Transform1, a_Transform2);
+    vec3     Position  = ZyApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, a_Size));
 
     uint Slot   = (a_Facing >> kFacingSlotShift) & kFacingSlotMask;
     vec4 Caster = u_Caster[Slot];
@@ -81,7 +79,7 @@ void main()
         for (int Index = 0; Index < 4; ++Index)
         {
             vec3  Local = PlaceSide(Side, ZyEmitRect(Index), Part, Parts, a_Size);
-            float Turn  = ShadowSwing(ApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
+            float Turn  = ShadowSwing(ZyApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
 
             Lowest = min(Lowest, Turn);
             Widest = max(Widest, Turn);
@@ -92,24 +90,22 @@ void main()
             // Every corner goes off the map, so the copy covers no area at all.
             gl_Position = kShadowDiscarded;
             v_Texture   = vec2(0.0);
-            v_Radial    = 0.0;
 
             return;
         }
         U += (Where.Anchor < 0.5) ? 1.0 : -1.0;
     }
 
-    // The side runs across its own slice of the art, whatever the box it stands on measures, so the
-    // whole crop is always covered and a doorway anywhere in it lets the light straight through.
+    // The side runs across its own slice of the art, so a doorway anywhere in it lets the light through.
     float Along  = (float(Part) + Corner.x) / float(Parts);
     vec2  Sample = ReadSample(a_Facing >> kFacingMirrorShift, vec2(Along, Corner.y));
 
     // Indexing by the tangent keeps an upright side's vertical edge straight, since its radius never changes.
     float Height = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    gl_Position = PlaceAtlas(U, ShadowRow(float(Slot), Height));
-    v_Texture   = mix(a_Frame.xy, a_Frame.zw, Sample);
-    v_Radial    = Radial / max(Caster.w, 0.0001);
+    gl_Position   = PlaceAtlas(U, ShadowRow(float(Slot), Height));
+    gl_Position.z = (Radial / max(Caster.w, 0.0001)) * 2.0 - 1.0;
+    v_Texture     = mix(a_Frame.xy, a_Frame.zw, Sample);
 }
 
 #endif // VERTEX_SHADER
@@ -123,9 +119,7 @@ void main()
 layout(binding = 0) uniform sampler2D t_Albedo;
 
 in vec2  v_Texture;
-in float v_Radial;
 
-layout(location = 0) out float out_Radial;
 
 void main()
 {
@@ -134,8 +128,6 @@ void main()
     {
         discard;
     }
-
-    out_Radial = clamp(v_Radial, 0.0, 1.0);
 }
 
 #endif // FRAGMENT_SHADER

@@ -8,6 +8,9 @@
         },
         "Relief": {
             "Path": "Prop1_h.tex"
+        },
+        "Surface": {
+            "Path": "Prop1_s.tex"
         }
     }
 }

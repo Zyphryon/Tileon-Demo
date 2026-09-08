@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
@@ -103,10 +102,11 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-layout(binding = 0) uniform sampler2D t_Normal;
-layout(binding = 1) uniform sampler2D t_Depth;
-layout(binding = 2) uniform sampler2D t_Albedo;
-layout(binding = 3) uniform sampler2D t_Shadow;
+layout(binding = 0) uniform sampler2D       t_Normal;
+layout(binding = 1) uniform sampler2D       t_Depth;
+layout(binding = 2) uniform sampler2D       t_Albedo;
+layout(binding = 3) uniform sampler2D       t_Shadow;
+layout(binding = 4) uniform sampler2DShadow t_Shadowed;
 
 in vec4 v_Probe;
 in vec4 v_Light;
@@ -129,6 +129,15 @@ float Reach(float Bearing, float Height, float Slot, vec2 Angular)
     return textureLod(t_Shadow, vec2(Bearing + Angular.x * ZY_INV_TWO_PI, Row), 0.0).r;
 }
 
+/// Tests the atlas one angular step away, each tap a compare the hardware filters for free.
+float Reaches(float Bearing, float Height, float Slot, vec2 Angular, float Sought)
+{
+    float Along = clamp(Height + Angular.y / (2.0 * kShadowTangent), 0.0, 1.0);
+    float Row   = ShadowRow(Slot, Along);
+
+    return textureGrad(t_Shadowed, vec3(Bearing + Angular.x * ZY_INV_TWO_PI, Row, Sought), vec2(0.0), vec2(0.0));
+}
+
 /// Reads back how much of the light survives the art standing between it and the point it lands on.
 float Occlusion(vec3 World, vec3 Center, float Radius, float Slot, float Facing)
 {
@@ -138,8 +147,7 @@ float Occlusion(vec3 World, vec3 Center, float Radius, float Slot, float Facing)
 
     float Height  = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    // A texel covers more ground the further out it is read, and a surface the light only grazes spans more
-    // of one still, so the bias widens with both.
+    // A texel covers more ground further out and more still where it is grazed, so the bias widens with both.
     float Sought  = Radial / max(Radius, 0.0001);
     float Bias    = (Sought * kShadowSlope + kShadowBias) / max(Facing, kShadowFacing);
 
@@ -171,8 +179,7 @@ float Occlusion(vec3 World, vec3 Center, float Radius, float Slot, float Facing)
     }
     Blocker /= Found;
 
-    // Art pressed against what it shades throws a sharp edge and the same art far in front of it throws a
-    // soft one, so the gap between the two is the whole of the penumbra.
+    // The gap between the art and what it shades is the whole of the penumbra.
     float Penumbra = kShadowSource * (Sought - Blocker) / max(Blocker * Sought, 0.0001);
     float Spread   = clamp(Penumbra, kShadowMinimum, kShadowSpread);
 
@@ -180,9 +187,7 @@ float Occlusion(vec3 World, vec3 Center, float Radius, float Slot, float Facing)
 
     for (int Tap = 0; Tap < kShadowTaps; ++Tap)
     {
-        float Nearest = Reach(Bearing, Height, Slot, ZySpiral(float(Tap), float(kShadowTaps), Rotate) * Spread);
-
-        Visible += (Sought <= Nearest + Bias) ? 1.0 : 0.0;
+        Visible += Reaches(Bearing, Height, Slot, ZySpiral(float(Tap), float(kShadowTaps), Rotate) * Spread, Sought - Bias);
     }
 
     return Visible / float(kShadowTaps);
@@ -194,7 +199,7 @@ void main()
     ivec2 Texel  = ivec2(gl_FragCoord.xy);
     vec4  Base   = texelFetch(t_Albedo, Texel, 0);
     float Sorted = texelFetch(t_Depth, Texel, 0).r;
-    float Depth  = Sorted - Base.a * kReliefRange / ZyDepthSpan(u_CameraInverse);
+    float Depth  = Sorted - Base.a * kReliefRange * u_ScreenX.w;
     vec4  Probe  = u_CameraInverse * vec4(v_Probe.xy, ZyClipDepth(Depth), 1.0);
     vec3  World  = Probe.xyz / Probe.w;
 

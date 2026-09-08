@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
@@ -160,8 +159,7 @@ fs_Output main(fs_Input Input)
         Albedo += Source[Layer].rgb * Input.Tint[Layer].rgb * Weight[Layer];
 
 #ifdef ENABLE_NORMAL_MAPPING
-        // Averaging unit normals pulls a meeting toward flat, so the slopes each one stands at are mixed.
-        Slope += Tangent[Layer].xy * (rcp(max(Tangent[Layer].z, 0.0001)) * Weight[Layer]);
+        Slope += float2(Tangent[Layer].x, -Tangent[Layer].y) * (rcp(max(Tangent[Layer].z, 0.0001)) * Weight[Layer]);
 #endif
     }
 

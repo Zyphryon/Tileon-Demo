@@ -1,17 +1,8 @@
 {
   "Properties": {
-    "Blend": {
-      "SrcColor": "One",
-      "DstColor": "One",
-      "EquationColor": "Min",
-      "SrcAlpha": "One",
-      "DstAlpha": "One",
-      "EquationAlpha": "Min",
-      "Channel": "R"
-    },
     "Depth": {
-      "Mask": false,
-      "Condition": "Always"
+      "Mask": true,
+      "Condition": "LessEqual"
     },
     "Rasterizer": {
       "Cull": "None"

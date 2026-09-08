@@ -1,12 +1,12 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
+#include "Embedded://Shader/Grid.hlsl"
 #include "Resources://Technique/Common/Scene.hlsl"
 
 cbuffer cb_Pass : register(b1)
@@ -54,22 +54,10 @@ fs_Input main(uint ID : SV_VertexID)
 
 #ifdef FRAGMENT_SHADER
 
-// Returns the anti-aliased line coverage of the lattice with the given period, at this fragment.
-float Coverage(float2 World, float2 Period)
-{
-    const float2 Repeat   = World / Period;
-    const float2 Derivate = max(fwidth(Repeat), 1e-8);
-    const float2 Distance = abs(frac(Repeat - 0.5) - 0.5) / Derivate;
-
-    // Once the lines sit closer than a couple of pixels apart they alias into noise, so dissolve them instead.
-    const float Density = saturate(1.0 - max(Derivate.x, Derivate.y) * 2.0);
-    return saturate(1.0 - min(Distance.x, Distance.y)) * Density;
-}
-
 float4 main(fs_Input Input) : SV_Target0
 {
-    const float Tile   = Coverage(Input.World, float2(1.0, 1.0));
-    const float Region = Coverage(Input.World, u_Dimension);
+    const float Tile   = ZyGridLine(Input.World);
+    const float Region = ZyGridLine(Input.World / u_Dimension);
 
     const float4 Result = lerp(
         float4(kColorTiles.rgb,   kColorTiles.a   * Tile),

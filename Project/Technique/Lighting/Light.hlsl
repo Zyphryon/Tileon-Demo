@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
@@ -109,14 +108,16 @@ fs_Input main(vs_Input Input)
 
 #ifdef FRAGMENT_SHADER
 
-Texture2D    t_Normal : register(t0);
-SamplerState s_Normal : register(s0);
-Texture2D    t_Depth  : register(t1);
-SamplerState s_Depth  : register(s1);
-Texture2D    t_Albedo : register(t2);
-SamplerState s_Albedo : register(s2);
-Texture2D    t_Shadow : register(t3);
-SamplerState s_Shadow : register(s3);
+Texture2D              t_Normal   : register(t0);
+SamplerState           s_Normal   : register(s0);
+Texture2D              t_Depth    : register(t1);
+SamplerState           s_Depth    : register(s1);
+Texture2D              t_Albedo   : register(t2);
+SamplerState           s_Albedo   : register(s2);
+Texture2D              t_Shadow   : register(t3);
+SamplerState           s_Shadow   : register(s3);
+Texture2D              t_Shadowed : register(t4);
+SamplerComparisonState s_Shadowed : register(s4);
 
 /// Reads the atlas one angular step away from where a point lands in it.
 float Reach(float Bearing, float Height, float Slot, float2 Angular)
@@ -125,6 +126,15 @@ float Reach(float Bearing, float Height, float Slot, float2 Angular)
     const float Row   = ShadowRow(Slot, Along);
 
     return t_Shadow.SampleLevel(s_Shadow, float2(Bearing + Angular.x * ZY_INV_TWO_PI, Row), 0).r;
+}
+
+/// Tests the atlas one angular step away, each tap a compare the hardware filters for free.
+float Reaches(float Bearing, float Height, float Slot, float2 Angular, float Sought)
+{
+    const float Along = clamp(Height + Angular.y / (2.0 * kShadowTangent), 0.0, 1.0);
+    const float Row   = ShadowRow(Slot, Along);
+
+    return t_Shadowed.SampleCmpLevelZero(s_Shadowed, float2(Bearing + Angular.x * ZY_INV_TWO_PI, Row), Sought);
 }
 
 /// Reads back how much of the light survives the art standing between it and the point it lands on.
@@ -136,8 +146,7 @@ float Occlusion(float3 World, float3 Center, float Radius, float Slot, float Fac
 
     const float  Height  = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    // A texel covers more ground the further out it is read, and a surface the light only grazes spans more
-    // of one still, so the bias widens with both.
+    // A texel covers more ground further out and more still where it is grazed, so the bias widens with both.
     const float  Sought  = Radial / max(Radius, 0.0001);
     const float  Bias    = (Sought * kShadowSlope + kShadowBias) / max(Facing, kShadowFacing);
 
@@ -170,8 +179,7 @@ float Occlusion(float3 World, float3 Center, float Radius, float Slot, float Fac
     }
     Blocker /= Found;
 
-    // Art pressed against what it shades throws a sharp edge and the same art far in front of it throws a
-    // soft one, so the gap between the two is the whole of the penumbra.
+    // The gap between the art and what it shades is the whole of the penumbra.
     const float Penumbra = kShadowSource * (Sought - Blocker) / max(Blocker * Sought, 0.0001);
     const float Spread   = clamp(Penumbra, kShadowMinimum, kShadowSpread);
 
@@ -180,9 +188,7 @@ float Occlusion(float3 World, float3 Center, float Radius, float Slot, float Fac
     [unroll]
     for (int Tap = 0; Tap < kShadowTaps; ++Tap)
     {
-        const float Nearest = Reach(Bearing, Height, Slot, ZySpiral(Tap, kShadowTaps, Rotate) * Spread);
-
-        Visible += (Sought <= Nearest + Bias) ? 1.0 : 0.0;
+        Visible += Reaches(Bearing, Height, Slot, ZySpiral(Tap, kShadowTaps, Rotate) * Spread, Sought - Bias);
     }
 
     return Visible / float(kShadowTaps);
@@ -194,7 +200,7 @@ float3 main(fs_Input Input) : SV_Target0
     const int3   Texel  = int3(Input.Position.xy, 0);
     const float4 Base   = t_Albedo.Load(Texel);
     const float  Sorted = t_Depth.Load(Texel).r;
-    const float  Depth  = Sorted - Base.a * kReliefRange / ZyDepthSpan(u_CameraInverse);
+    const float  Depth  = Sorted - Base.a * kReliefRange * u_ScreenX.w;
     const float4 Probe  = mul(u_CameraInverse, float4(Input.Probe.xy, ZyClipDepth(Depth), 1.0));
     const float3 World  = Probe.xyz / Probe.w;
 

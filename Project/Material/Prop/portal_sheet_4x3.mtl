@@ -1,0 +1,15 @@
+{
+  "Images": {
+    "Albedo": {
+      "Path": "portal_sheet_4x3.tex"
+    }
+  },
+  "Samplers": {
+    "Albedo": {
+      "Filter": "Point",
+      "AddressModeU": "Clamp",
+      "AddressModeV": "Clamp",
+      "AddressModeW": "Clamp"
+    }
+  }
+}

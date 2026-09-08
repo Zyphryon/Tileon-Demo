@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
@@ -22,6 +21,10 @@ cbuffer cb_Pass : register(b1)
 
 /// How far a surface is let off the map before it is taken to be standing in its own shadow.
 static const float kSunBias = 0.0015;
+
+/// How far a point is lifted off its surface along its normal before the map is asked, in world units, so
+/// a face the map itself recorded does not shade the pixels lying on it.
+static const float kSunLift = 0.25;
 
 struct fs_Input
 {
@@ -55,17 +58,17 @@ fs_Input main(uint VertexID : SV_VertexID)
 
 #ifdef FRAGMENT_SHADER
 
-Texture2D    t_Normal : register(t0);
-SamplerState s_Normal : register(s0);
+Texture2D    		   t_Normal   : register(t0);
+SamplerState 		   s_Normal   : register(s0);
 
-Texture2D    t_Albedo : register(t1);
-SamplerState s_Albedo : register(s1);
+Texture2D    		   t_Albedo   : register(t1);
+SamplerState 		   s_Albedo   : register(s1);
 
-Texture2D    t_Depth    : register(t2);
-SamplerState s_Depth    : register(s2);
+Texture2D    		   t_Depth    : register(t2);
+SamplerState 		   s_Depth    : register(s2);
 
-Texture2D    t_Sunlight : register(t3);
-SamplerState s_Sunlight : register(s3);
+Texture2D              t_Sunlight : register(t3);
+SamplerComparisonState s_Sunlight : register(s3);
 
 float Sunlit(float3 World)
 {
@@ -89,7 +92,8 @@ float Sunlit(float3 World)
         {
             const float2 Tap = Map + float2(X, Y) * u_Sunstep.xy;
 
-            Sum += (Depth <= t_Sunlight.SampleLevel(s_Sunlight, Tap, 0).r) ? 1.0 : 0.0;
+            // Each tap is a hardware comparison, filtered over its own four texels for free.
+            Sum += t_Sunlight.SampleCmpLevelZero(s_Sunlight, Tap, Depth);
         }
     }
     return Sum * (1.0 / 9.0);
@@ -102,21 +106,26 @@ float3 main(fs_Input Input) : SV_Target0
     const float3 Albedo = Base.rgb;
     const float3 Normal = normalize(ZyDecodeNormalMap(t_Normal.Load(Texel).rgb));
 
-    // The same reading the local lights take, so both agree on where a pixel actually stands.
-    const float  Sorted = t_Depth.Load(Texel).r;
-    const float  Depth  = Sorted - Base.a * kReliefRange / ZyDepthSpan(u_CameraInverse);
-    const float4 Probe  = mul(u_CameraInverse, float4(Input.Probe, ZyClipDepth(Depth), 1.0));
-    const float3 World  = Probe.xyz / Probe.w;
-
-    // Hemisphere ambient. The weight is world Y, so this reads as "facing the sky" only because the normal
-    // buffer stores world-space normals with Y up.
+    // Hemisphere ambient, weighed by world Y, which reads as the sky only because the normals are world.
     const float  Weight  = Normal.y * 0.5 + 0.5;
     const float3 Ambient = lerp(u_GroundColor.rgb, u_SkyColor.rgb, Weight);
     const float3 Toward  = float3(u_SunColor.w, u_SkyColor.w, u_GroundColor.w);
-    const float3 Sun     = u_SunColor.rgb * saturate(dot(Normal, Toward)) * Sunlit(World);
+    const float  Facing  = dot(Normal, Toward);
 
-    // Every light shades the surface it lands on, so the radiance target holds scene color and the composite
-    // only tone maps it. Summing the lights and multiplying once at the end is the same math.
+    float3 Sun = float3(0.0, 0.0, 0.0);
+
+    // A surface turned from the sun is dark without asking the map, which spares the whole gather.
+    [branch]
+    if (Facing > 0.0)
+    {
+        const float  Sorted = t_Depth.Load(Texel).r;
+        const float  Depth  = Sorted - Base.a * kReliefRange * u_ScreenX.w;
+        const float4 Probe  = mul(u_CameraInverse, float4(Input.Probe, ZyClipDepth(Depth), 1.0));
+
+        Sun = u_SunColor.rgb * (Facing * Sunlit(Probe.xyz / Probe.w + Normal * kSunLift));
+    }
+
+    // Every light shades what it lands on, so the target holds scene color and the composite only tone maps.
     return Albedo * (Ambient + Sun);
 }
 

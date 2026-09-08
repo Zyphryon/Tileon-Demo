@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
@@ -87,8 +86,7 @@ void main()
     // The lights already shaded what they landed on, so the scene target holds scene color.
     vec3 Scene = texture(t_Scene, v_Texture).rgb;
 
-    // Exposure moves the scene into the knee, and the curve is what brings it into display range.
-    // The halo is scene referred, so it joins the scene before exposure carries the pair into the curve.
+    // The halo is scene referred, so it joins before exposure carries the pair into the curve.
     vec3 Lit = Scene;
 
     if (u_Gamma.w > 0.0)
@@ -109,8 +107,7 @@ void main()
     vec2 Offset = v_Texture - 0.5;
     Color *= 1.0 - u_Grading.z * clamp(dot(Offset, Offset) * 2.0, 0.0, 1.0);
 
-    // Silver shows most where the exposure landed halfway, and falls away towards an unexposed black
-    // and a saturated white alike. The luma is read after the vignette, so a darkened corner grains less.
+    // Silver shows most at a halfway exposure, and reading luma after the vignette grains the corners less.
     float Exposed = ZyLuminance(Color);
     float Density = sqrt(clamp(4.0 * Exposed * (1.0 - Exposed), 0.0, 1.0));
 

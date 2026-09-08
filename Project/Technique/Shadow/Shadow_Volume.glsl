@@ -1,13 +1,12 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
-#include "Resources://Technique/Common/Affine.glsl"
+#include "Embedded://Shader/Affine.glsl"
 #include "Resources://Technique/Common/Shadow.glsl"
 
 layout(std140, binding = 1) uniform cb_Pass
@@ -32,7 +31,6 @@ layout(location = 2) in vec4 a_Transform2;
 layout(location = 3) in vec3 a_Size;
 layout(location = 4) in uint a_Facing;
 
-out float v_Radial;
 
 /// Places one corner of a side in the box's own space, over the share of it this draw covers.
 vec3 PlaceSide(uint Side, vec2 Corner, uint Part, uint Parts, vec3 Size)
@@ -57,8 +55,8 @@ void main()
     uint Part   = a_Facing & kFacingPartMask;
     uint Parts  = ((a_Facing >> kFacingSizeShift) & kFacingPartMask) + 1u;
 
-    Affine Transform = ReadAffine(a_Transform0, a_Transform1, a_Transform2);
-    vec3   Position  = ApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, a_Size));
+    ZyAffine Transform = ZyReadAffine(a_Transform0, a_Transform1, a_Transform2);
+    vec3     Position  = ZyApplyAffine(Transform, PlaceSide(Side, Corner, Part, Parts, a_Size));
 
     uint Slot   = (a_Facing >> kFacingSlotShift) & kFacingSlotMask;
     vec4 Caster = u_Caster[Slot];
@@ -78,7 +76,7 @@ void main()
         for (int Index = 0; Index < 4; ++Index)
         {
             vec3  Local = PlaceSide(Side, ZyEmitRect(Index), Part, Parts, a_Size);
-            float Turn  = ShadowSwing(ApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
+            float Turn  = ShadowSwing(ZyApplyAffine(Transform, Local), Caster.xyz, Where.Pivot);
 
             Lowest = min(Lowest, Turn);
             Widest = max(Widest, Turn);
@@ -88,7 +86,6 @@ void main()
         {
             // Every corner goes off the map, so the copy covers no area at all.
             gl_Position = kShadowDiscarded;
-            v_Radial    = 0.0;
 
             return;
         }
@@ -98,8 +95,8 @@ void main()
     // Indexing by the tangent keeps an upright side's vertical edge straight, since its radius never changes.
     float Height = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    gl_Position = PlaceAtlas(U, ShadowRow(float(Slot), Height));
-    v_Radial    = Radial / max(Caster.w, 0.0001);
+    gl_Position   = PlaceAtlas(U, ShadowRow(float(Slot), Height));
+    gl_Position.z = (Radial / max(Caster.w, 0.0001)) * 2.0 - 1.0;
 }
 
 #endif // VERTEX_SHADER
@@ -110,14 +107,9 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-in float v_Radial;
-
-layout(location = 0) out float out_Radial;
-
+/// The map keeps the nearest blocker, which the depth test settles on its own.
 void main()
 {
-    // Art drawn with the view already in it has no silhouette to test, so the whole side blocks.
-    out_Radial = clamp(v_Radial, 0.0, 1.0);
 }
 
 #endif // FRAGMENT_SHADER

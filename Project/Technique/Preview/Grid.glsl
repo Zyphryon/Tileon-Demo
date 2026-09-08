@@ -1,12 +1,12 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
+#include "Embedded://Shader/Grid.glsl"
 #include "Resources://Technique/Common/Scene.glsl"
 
 layout(std140, binding = 1) uniform cb_Pass
@@ -50,22 +50,10 @@ in vec2 v_World;
 
 layout(location = 0) out vec4 out_Color;
 
-// Returns the anti-aliased line coverage of the lattice with the given period, at this fragment.
-float Coverage(vec2 World, vec2 Period)
-{
-    vec2 Repeat   = World / Period;
-    vec2 Derivate = max(fwidth(Repeat), vec2(1e-8));
-    vec2 Distance = abs(fract(Repeat - 0.5) - 0.5) / Derivate;
-
-    // Once the lines sit closer than a couple of pixels apart they alias into noise, so dissolve them instead.
-    float Density = clamp(1.0 - max(Derivate.x, Derivate.y) * 2.0, 0.0, 1.0);
-    return clamp(1.0 - min(Distance.x, Distance.y), 0.0, 1.0) * Density;
-}
-
 void main()
 {
-    float Tile   = Coverage(v_World, vec2(1.0));
-    float Region = Coverage(v_World, u_Dimension);
+    float Tile   = ZyGridLine(v_World);
+    float Region = ZyGridLine(v_World / u_Dimension);
 
     vec4 Result  = mix(
         vec4(kColorTiles.rgb,   kColorTiles.a   * Tile),

@@ -1,13 +1,12 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
-#include "Resources://Technique/Common/Affine.hlsl"
+#include "Embedded://Shader/Affine.hlsl"
 
 cbuffer cb_Pass : register(b1)
 {
@@ -28,7 +27,6 @@ struct vs_Input
 struct fs_Input
 {
     float4 Position   : SV_POSITION;
-    float  Along      : TEXCOORD0;    // how far along the sun the face stands, over the map's own span
 };
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -58,15 +56,12 @@ fs_Input main(vs_Input Input)
 {
     fs_Input Result;
 
-    const float2 Corner    = ZyEmitRect(Input.VertexID);
-    const Affine Transform = ReadAffine(Input.Transform0, Input.Transform1, Input.Transform2);
-    const float3 Position  = ApplyAffine(Transform, PlaceFace(Input.Face, Corner, Input.Size));
+    const float2   Corner    = ZyEmitRect(Input.VertexID);
+    const ZyAffine Transform = ZyReadAffine(Input.Transform0, Input.Transform1, Input.Transform2);
+    const float3   Position  = ZyApplyAffine(Transform, PlaceFace(Input.Face, Corner, Input.Size));
 
-    // The sun's own camera is orthographic, so the clip depth is already the distance along it, over one.
-    const float4 Clip = mul(u_Sunlight, float4(Position, 1.0));
-
-    Result.Position = Clip;
-    Result.Along    = Clip.z;
+    // The map is a plain depth buffer, so the distance along the sun is what the rasterizer already keeps.
+    Result.Position = mul(u_Sunlight, float4(Position, 1.0));
 
     return Result;
 }
@@ -79,10 +74,9 @@ fs_Input main(vs_Input Input)
 
 #ifdef FRAGMENT_SHADER
 
-/// The map keeps the nearest blocker, which the technique's own minimum blend is what settles.
-float main(fs_Input Input) : SV_Target0
+/// The map keeps the nearest blocker, which the depth test settles on its own.
+void main(fs_Input Input)
 {
-    return saturate(Input.Along);
 }
 
 #endif // FRAGMENT_SHADER

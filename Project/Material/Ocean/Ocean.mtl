@@ -1,0 +1,32 @@
+{
+  "Images": {
+    "Caustic": {
+      "Path": "Ocean_Caustic.tex"
+    },
+    "Noise": {
+      "Path": "Ocean_Noise.tex"
+    }
+  },
+  "Samplers": {
+    "Caustic": {
+      "Filter": "LinearMipLinear",
+      "AddressModeU": "Repeat",
+      "AddressModeV": "Repeat"
+    },
+    "Noise": {
+      "Filter": "LinearMipLinear",
+      "AddressModeU": "Repeat",
+      "AddressModeV": "Repeat"
+    }
+  },
+  "Parameters": {
+    "Weave": {
+      "Type": "Float",
+      "Value": 14.0
+    },
+    "Speckle": {
+      "Type": "Float",
+      "Value": 6.0
+    }
+  }
+}

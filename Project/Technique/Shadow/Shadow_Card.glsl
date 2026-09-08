@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
@@ -30,16 +29,18 @@ layout(location = 5) in vec4 a_Color;
 layout(location = 6) in uint a_Orientation;
 
 out vec2  v_Texture;
-out float v_Radial;
+#ifdef ENABLE_LAYERED
+flat out float v_Layer;     // the layer of the material's array the art is read from
+#endif
 
 void main()
 {
-    vec2   Corner    = ZyEmitRect(gl_VertexID);
+    vec2     Corner    = ZyEmitRect(gl_VertexID);
 
     // The quad has to stand exactly where the geometry pass draws it, so it is placed the same way.
-    Affine Transform = ReadAffine(a_Transform0, a_Transform1, a_Transform2);
-    Face   Surface    = ReadFace(a_Orientation, Transform);
-    vec3   Position  = PlaceCorner(Transform, Surface, Corner, a_Size);
+    ZyAffine Transform = ZyReadAffine(a_Transform0, a_Transform1, a_Transform2);
+    Face     Surface   = ReadFace(a_Orientation, Transform);
+    vec3     Position  = PlaceCorner(Transform, Surface, Corner, a_Size);
 
     // The caster the quad is unwrapped around, and which band of the atlas it lands in.
     uint Slot   = (a_Orientation >> kFacingSlotShift) & kFacingSlotMask;
@@ -53,8 +54,7 @@ void main()
 
     if ((a_Orientation & kFacingWrap) != 0u)
     {
-        // Most quads sit well inside the band and have nothing to carry, so the copy measures the whole
-        // quad and steps aside when every corner of it already lands on the map.
+        // Most quads sit well inside the band, so the copy steps aside when every corner already lands.
         float Lowest = 0.0;
         float Widest = 0.0;
 
@@ -71,7 +71,6 @@ void main()
         {
             gl_Position = kShadowDiscarded;
             v_Texture   = vec2(0.0);
-            v_Radial    = 0.0;
 
             return;
         }
@@ -81,9 +80,12 @@ void main()
     // Indexing by the tangent keeps a standing quad's vertical edge straight, since its radius never changes.
     float Height = ShadowHeight(Delta.y / max(Radial, 0.0001));
 
-    gl_Position = PlaceAtlas(U, ShadowRow(float(Slot), Height));
-    v_Texture   = mix(a_Frame.xy, a_Frame.zw, ReadSample(a_Orientation, Corner));
-    v_Radial    = Radial / max(Caster.w, 0.0001);
+    gl_Position   = PlaceAtlas(U, ShadowRow(float(Slot), Height));
+    gl_Position.z = (Radial / max(Caster.w, 0.0001)) * 2.0 - 1.0;
+    v_Texture     = mix(a_Frame.xy, a_Frame.zw, ReadSample(a_Orientation, Corner));
+#ifdef ENABLE_LAYERED
+    v_Layer       = float(a_Orientation >> kLayerShift);
+#endif
 }
 
 #endif // VERTEX_SHADER
@@ -94,22 +96,29 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-layout(binding = 0) uniform sampler2D t_Albedo;
+#ifdef ENABLE_LAYERED
+layout(binding = 0) uniform sampler2DArray t_Albedo;
+#else
+layout(binding = 0) uniform sampler2D      t_Albedo;
+#endif
 
 in vec2  v_Texture;
-in float v_Radial;
+#ifdef ENABLE_LAYERED
+flat in float v_Layer;
+#endif
 
-layout(location = 0) out float out_Radial;
 
 void main()
 {
     // The art's own cutout is the blocker, so a gap in the canopy lets the light straight through.
+#ifdef ENABLE_LAYERED
+    if (texture(t_Albedo, vec3(v_Texture, v_Layer)).a < 0.5)
+#else
     if (texture(t_Albedo, v_Texture).a < 0.5)
+#endif
     {
         discard;
     }
-
-    out_Radial = clamp(v_Radial, 0.0, 1.0);
 }
 
 #endif // FRAGMENT_SHADER

@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.hlsl"
@@ -33,7 +32,12 @@ fs_Input main(vs_Input Input)
 {
     fs_Input Result;
 
-#ifdef BOUNDARY_FLAT
+#if defined(BOUNDARY_ROUNDED)
+
+    // Sixteen chords a ring, which the stage's kRoundSegments matches.
+    Result.Position = mul(u_Camera, float4(Input.Center + ZyEmitCylinder(Input.VertexID, 16) * Input.Extent, 1.0));
+
+#elif defined(BOUNDARY_FLAT)
 
     // A flat boundary is the screen rectangle the volume covers, so it is bounded in clip space instead.
     const float4 Origin = mul(u_Camera, float4(Input.Center, 1.0));

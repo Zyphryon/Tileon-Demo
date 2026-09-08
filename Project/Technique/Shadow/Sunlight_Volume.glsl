@@ -1,13 +1,12 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
-#include "Resources://Technique/Common/Affine.glsl"
+#include "Embedded://Shader/Affine.glsl"
 
 layout(std140, binding = 1) uniform cb_Pass
 {
@@ -25,8 +24,6 @@ layout(location = 1) in vec4 a_Transform1;
 layout(location = 2) in vec4 a_Transform2;
 layout(location = 3) in vec3 a_Size;       // the ground covered along x and z, and the height reached along y
 layout(location = 4) in uint a_Face;       // which face of the box this quad stands for
-
-out float v_Along;    // how far along the sun the face stands, over the map's own span
 
 vec3 PlaceFace(uint Face, vec2 Corner, vec3 Size)
 {
@@ -47,15 +44,12 @@ vec3 PlaceFace(uint Face, vec2 Corner, vec3 Size)
 
 void main()
 {
-    vec2   Corner    = ZyEmitRect(gl_VertexID);
-    Affine Transform = ReadAffine(a_Transform0, a_Transform1, a_Transform2);
-    vec3   Position  = ApplyAffine(Transform, PlaceFace(a_Face, Corner, a_Size));
+    vec2     Corner    = ZyEmitRect(gl_VertexID);
+    ZyAffine Transform = ZyReadAffine(a_Transform0, a_Transform1, a_Transform2);
+    vec3     Position  = ZyApplyAffine(Transform, PlaceFace(a_Face, Corner, a_Size));
 
-    // The sun's own camera is orthographic, so the clip depth is already the distance along it, over one.
-    vec4 Clip = u_Sunlight * vec4(Position, 1.0);
-
-    gl_Position = Clip;
-    v_Along     = Clip.z;
+    // The map is a plain depth buffer, so the distance along the sun is what the rasterizer already keeps.
+    gl_Position = u_Sunlight * vec4(Position, 1.0);
 }
 
 #endif // VERTEX_SHADER
@@ -66,14 +60,9 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-in float v_Along;
-
-layout(location = 0) out float out_Along;
-
-/// The map keeps the nearest blocker, which the technique's own minimum blend is what settles.
+/// The map keeps the nearest blocker, which the depth test settles on its own.
 void main()
 {
-    out_Along = clamp(v_Along, 0.0, 1.0);
 }
 
 #endif // FRAGMENT_SHADER

@@ -37,7 +37,7 @@
       { "Name": "Normal", "Frequency": "Pass", "Filter": "Point" },
       { "Name": "Albedo", "Frequency": "Pass", "Filter": "Point" },
       { "Name": "Depth", "Frequency": "Pass", "Filter": "Point" },
-      { "Name": "Sunlight", "Frequency": "Pass", "Filter": "Linear" }
+      { "Name": "Sunlight", "Frequency": "Pass", "Filter": "Linear", "Comparison": "LessEqual" }
     ]
   },
   "Program": {

@@ -1,9 +1,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-// Copyright (C) 2025-2026 by Tileon contributors (see AUTHORS.md)
+// Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is licensed under the terms of the MIT license.
-//
-// For a copy, see <https://opensource.org/licenses/MIT>.
+// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
+// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #include "Embedded://Shader/Vertex.glsl"
@@ -22,6 +21,9 @@ layout(std140, binding = 1) uniform cb_Pass
 
 /// How far a surface is let off the map before it is taken to be standing in its own shadow.
 const float kSunBias = 0.0015;
+
+/// How far a point is lifted off its surface along its normal before the map is asked, in world units.
+const float kSunLift = 0.25;
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Vertex Shader
@@ -47,10 +49,10 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-layout(binding = 0) uniform sampler2D t_Normal;
-layout(binding = 1) uniform sampler2D t_Albedo;
-layout(binding = 2) uniform sampler2D t_Depth;
-layout(binding = 3) uniform sampler2D t_Sunlight;
+layout(binding = 0) uniform sampler2D 	    t_Normal;
+layout(binding = 1) uniform sampler2D 	    t_Albedo;
+layout(binding = 2) uniform sampler2D 	    t_Depth;
+layout(binding = 3) uniform sampler2DShadow t_Sunlight;
 
 in vec2 v_Probe;
 
@@ -68,7 +70,7 @@ float Sunlit(vec3 World)
         return 1.0;
     }
 
-    float Depth = Lit.z - kSunBias;
+    float Depth = (Lit.z - kSunBias) * 0.5 + 0.5;
     float Sum   = 0.0;
 
     for (int Y = -1; Y <= 1; ++Y)
@@ -77,7 +79,8 @@ float Sunlit(vec3 World)
         {
             vec2 Tap = Map + vec2(X, Y) * u_Sunstep.xy;
 
-            Sum += (Depth <= textureLod(t_Sunlight, Tap, 0.0).r) ? 1.0 : 0.0;
+            // Each tap is a hardware comparison, filtered over its own four texels for free.
+            Sum += textureGrad(t_Sunlight, vec3(Tap, Depth), vec2(0.0), vec2(0.0));
         }
     }
     return Sum * (1.0 / 9.0);
@@ -90,21 +93,24 @@ void main()
     vec3  Albedo = Base.rgb;
     vec3  Normal = normalize(ZyDecodeNormalMap(texelFetch(t_Normal, Texel, 0).rgb));
 
-    // The same reading the local lights take, so both agree on where a pixel actually stands.
-    float Sorted = texelFetch(t_Depth, Texel, 0).r;
-    float Depth  = Sorted - Base.a * kReliefRange / ZyDepthSpan(u_CameraInverse);
-    vec4  Probe  = u_CameraInverse * vec4(v_Probe, ZyClipDepth(Depth), 1.0);
-    vec3  World  = Probe.xyz / Probe.w;
-
-    // Hemisphere ambient. The weight is world Y, so this reads as "facing the sky" only because the normal
-    // buffer stores world-space normals with Y up.
+    // Hemisphere ambient, weighed by world Y, which reads as the sky only because the normals are world.
     float Weight  = Normal.y * 0.5 + 0.5;
     vec3  Ambient = mix(u_GroundColor.rgb, u_SkyColor.rgb, Weight);
     vec3  Toward  = vec3(u_SunColor.w, u_SkyColor.w, u_GroundColor.w);
-    vec3  Sun     = u_SunColor.rgb * max(dot(Normal, Toward), 0.0) * Sunlit(World);
+    float Facing  = dot(Normal, Toward);
+    vec3  Sun     = vec3(0.0);
 
-    // Every light shades the surface it lands on, so the radiance target holds scene color and the composite
-    // only tone maps it. Summing the lights and multiplying once at the end is the same math.
+    // A surface turned from the sun is dark without asking the map, which spares the whole gather.
+    if (Facing > 0.0)
+    {
+        float Sorted = texelFetch(t_Depth, Texel, 0).r;
+        float Depth  = Sorted - Base.a * kReliefRange * u_ScreenX.w;
+        vec4  Probe  = u_CameraInverse * vec4(v_Probe, ZyClipDepth(Depth), 1.0);
+
+        Sun = u_SunColor.rgb * (Facing * Sunlit(Probe.xyz / Probe.w + Normal * kSunLift));
+    }
+
+    // Every light shades what it lands on, so the target holds scene color and the composite only tone maps.
     out_Color = Albedo * (Ambient + Sun);
 }
 
