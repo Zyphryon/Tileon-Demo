@@ -1,8 +1,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
-// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
+// This work is proprietary and confidential.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #ifndef TILEON_SPRITE_INCLUDED
@@ -31,6 +30,20 @@ const uint kTiled        = 32u;
 
 /// Where the layer of a layered material begins in the orientation word.
 const uint kLayerShift   = 20u;
+
+/// The width of an outline's stroke begins here, and is held to the three bits above it.
+const uint kStrokeShift  = 6u;
+
+/// The mask the width of an outline's stroke is held to, which is seven pixels of art at the widest.
+const uint kStrokeMask   = 7u;
+
+
+
+
+
+
+
+
 
 /// The art stands up, facing the eye.
 const uint kPlaneUpright = 0u;

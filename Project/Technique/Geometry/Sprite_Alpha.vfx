@@ -74,6 +74,8 @@
         }
     ],
     "Preload": [
-        ["Relief"], ["Layered"], ["Relief", "Layered"]
+        ["Relief"],
+        ["Layered"],
+        ["Relief", "Layered"]
     ]
 }

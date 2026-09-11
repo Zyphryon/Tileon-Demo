@@ -1,8 +1,7 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Copyright (C) 2025-2026 by Agustin L. Alvarez. All rights reserved.
 //
-// This work is proprietary and confidential. Unauthorized copying, distribution, modification or use of this
-// file, in whole or in part, is strictly prohibited without the prior written permission of the copyright holder.
+// This work is proprietary and confidential.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 #ifndef GL_ES
